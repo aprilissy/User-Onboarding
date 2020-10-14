@@ -51,7 +51,6 @@ function App() {
         setUsers([res.data, ...users]);
         setFormValues(initialFormValues);
         //console.log('post', newUser);
-        
       })
       .catch((err) => {
         console.log('axios post error',err);
@@ -59,35 +58,30 @@ function App() {
       });
   };
 
-  useEffect(() => { // If the form is filled correctly enable the submit button
-    validation.isValid(formValues).then((valid) => {
-      setDisabledSubmit(!valid);
-    });
-  }, [formValues]);
-
-
+  
+  
   // Form Validation
   const inputChange = (inputName, inputValue) => {
     yup
-      .reach(validation, inputName) //access FormValidatiaon yup object. param1 = yup validation, param2 = key we want tested.
-      .validate(inputValue) // validate based on user input values
-      .then(() => { // Works - clear the error
-        setFormErrors({
-          ...formErrors, [inputName]: '',
-        });
-      })
-      .catch((err) => { // Fails - provide error message created in FormValidation.js
-        setFormErrors({
-          ...formErrors, [inputName]: err.errors[0], // Validation error from FormValidation.js
-        });
+    .reach(validation, inputName) //access FormValidatiaon yup object. param1 = yup validation, param2 = key we want tested.
+    .validate(inputValue) // validate based on user input values
+    .then(() => { // Works - clear the error
+      setFormErrors({
+        ...formErrors, [inputName]: '',
       });
-  
+    })
+    .catch((err) => { // Fails - provide error message created in FormValidation.js
+      setFormErrors({
+        ...formErrors, [inputName]: err.errors[0], // Validation error from FormValidation.js
+      });
+    });
+    
     setFormValues({
       ...formValues,
       [inputName]:inputValue,
     });
   };
-
+  
   const formSubmit = () => { //Submit new users with any extra spaces removed.
     const newUser = {
       username: formValues.username.trim(),
@@ -97,7 +91,14 @@ function App() {
     }
     postNewUser(newUser);
   };
+  console.log('users', users)
 
+  useEffect(() => { // If the form is filled correctly enable the submit button
+    validation.isValid(formValues).then((valid) => {
+      setDisabledSubmit(!valid);
+    });
+  }, [formValues]);
+  
   return (
     <div className="App">
       <Form 
@@ -107,6 +108,9 @@ function App() {
         disabled={disabledSubmit}
         errors={formErrors}
       />
+      <pre>
+       {JSON.stringify(users)}
+      </pre>
     </div>
   );
 };
