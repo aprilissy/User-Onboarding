@@ -1,16 +1,28 @@
 import React from 'react';
 
 export default function Form(props) {
-  const {} = props;
+  const { values, submit, change, disabled, errors} = props;
 
   const onChange = (evt) => {
+    const {name, value, type, checked} = evt.target;
+    const valueToUse = type === 'checkbox' ? checked : value;
+    change(name, valueToUse)
+  };
 
+  const onSubmit = (evt) => {
+    evt.preventDefault();
+    submit();
   };
 
   return (
-    <form>
-{/* pass in disabled prop or create it above */}
-      <button disabled={disabled}>Submit</button> 
+    <form onSubmit={onSubmit}>
+
+      <div> {/* Render Validation Errors */}
+       <div>{errors.username}</div>
+       <div>{errors.email}</div>
+       <div>{errors.password}</div>
+       <div>{errors.termsOfService}</div>
+      </div>
 
       <label>
         Name
@@ -26,7 +38,7 @@ export default function Form(props) {
       <label>
         Email
         <input
-          value={values.emeil}
+          value={values.email}
           name='email'
           type='email'
           onChange={onChange}
@@ -44,6 +56,7 @@ export default function Form(props) {
       </label>
 
       <label>
+        Terms of Service
         <input 
           checked={values.termsOfService}
           name='termsOfService'
@@ -51,6 +64,10 @@ export default function Form(props) {
           onChange={onChange}
         />
       </label>
+
+      {/* pass in disabled prop or create it above */}
+      <button disabled={disabled}>Submit</button> 
+
     </form>
   );
 };

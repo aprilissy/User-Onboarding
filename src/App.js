@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios'
 import * as yup from 'yup';
 import './App.css';
-import './components/Form';
+import Form from './components/Form';
 import validation from './components/FormValidation'
 
 const initialFormValues = {
@@ -28,6 +29,43 @@ function App() {
   const [users, setUsers] = useState(initialUsers);
   const [disabledSubmit, setDisabledSubmit] = useState(initalDisabledSubmit);
 
+  // const getUsers = () => {
+  //   axios
+  //     .get(`http://localhost:4000/users`)
+  //     .then((res) => {
+  //       setUsers(res.data);
+  //     })
+  //     .catch((err) => {
+  //       debugger;
+  //     });
+  // };
+
+  // useEffect(() => {
+  //   getUsers();
+  // }, []);
+
+  const postNewUser = (newUser) => {
+    axios
+      .post(`https://reqres.in/api/users`, newUser)
+      .then((res) => {
+        setUsers([res.data, ...users]);
+        setFormValues(initialFormValues);
+        //console.log('post', newUser);
+        
+      })
+      .catch((err) => {
+        console.log('axios post error',err);
+        debugger
+      });
+  };
+
+  useEffect(() => { // If the form is filled correctly enable the submit button
+    validation.isValid(formValues).then((valid) => {
+      setDisabledSubmit(!valid);
+    });
+  }, [formValues]);
+
+
   // Form Validation
   const inputChange = (inputName, inputValue) => {
     yup
@@ -43,12 +81,32 @@ function App() {
           ...formErrors, [inputName]: err.errors[0], // Validation error from FormValidation.js
         });
       });
-  }; 
+  
+    setFormValues({
+      ...formValues,
+      [inputName]:inputValue,
+    });
+  };
 
+  const formSubmit = () => { //Submit new users with any extra spaces removed.
+    const newUser = {
+      username: formValues.username.trim(),
+      email: formValues.email.trim(),
+      password: formValues.password.trim(),
+      termsOfService: formValues.termsOfService,
+    }
+    postNewUser(newUser);
+  };
 
   return (
     <div className="App">
-      <Form />
+      <Form 
+        values={formValues}
+        change={inputChange}
+        submit={formSubmit}
+        disabled={disabledSubmit}
+        errors={formErrors}
+      />
     </div>
   );
 };
